@@ -58,15 +58,15 @@
             cursor: pointer;
         }
 
-        /* Area rahasia (tidak terlihat) */
+        /* Area rahasia di pojok kanan bawah */
         #secretArea {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 80px;
-            height: 80px;
+            bottom: 0;
+            right: 0;
+            width: 90px;
+            height: 90px;
             z-index: 10000;
-            opacity: 0;
+            opacity: 0; /* tidak terlihat */
         }
     </style>
 </head>
@@ -74,78 +74,98 @@
 
 <div class="header">APLIKASI UJIAN</div>
 
-<!-- Google Form Anda -->
+<!-- GANTI GOOGLE FORM DI SINI -->
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScb2XhoRWs0fF2rOvQkvgZTS0pfDv9Nm6QFZcDMejFCIU4HVg/viewform?usp=header"></iframe>
+
 
 <!-- Halaman terkunci -->
 <div id="lockScreen">
     <h1>⚠️ HALAMAN UJIAN TERKUNCI</h1>
     <p>Sistem mendeteksi Anda keluar dari halaman ujian.</p>
-    <p>Jangan Keluar Halaman Ketika Ujian Berlangsung.</p>
+    <p>Jangan keluar halaman selama ujian berlangsung.</p>
 
     <input type="password" id="kunci" placeholder="Masukkan kunci panitia">
     <button onclick="bukaUjian()">Buka Ujian</button>
 </div>
 
-<!-- Area rahasia -->
+<!-- Area rahasia → tekan 5 detik untuk admin -->
 <div id="secretArea"></div>
 
 <script>
-const kunciPanitia = "SMK2024"; // GANTI PASSWORD PANITIA
+/* ================================================
+   MAPEL INFORMATIKA
+   STORAGE KHUSUS MAPEL INI
+   ================================================ */
+const storageKey = "locked_informatika";   // GANTI UNTUK MAPEL LAIN
+const kunciPanitia = "SMK2024";            // Password admin
 
-let tapCount = 0;
-let tapTimer = null;
 
-// Munculkan input password jika panitia tekan area rahasia 5x
-document.getElementById("secretArea").addEventListener("click", function () {
-    tapCount++;
 
-    if (tapTimer) clearTimeout(tapTimer);
+/* ============= Area Rahasia ============= */
+let holdTimer = null;
+const secretArea = document.getElementById("secretArea");
 
-    tapTimer = setTimeout(() => {
-        tapCount = 0;
-    }, 1000);
+function showAdminPanel() {
+    document.getElementById("kunci").style.display = "block";
+    document.querySelector("#lockScreen button").style.display = "inline-block";
+}
 
-    if (tapCount >= 5) {
-        document.getElementById("kunci").style.display = "block";
-        document.querySelector("#lockScreen button").style.display = "inline-block";
-        tapCount = 0;
-    }
-});
+function startHold() {
+    holdTimer = setTimeout(showAdminPanel, 5000); // 5 detik tahan
+}
+function endHold() {
+    clearTimeout(holdTimer);
+}
 
-// Saat halaman dibuka ulang → cek apakah terkunci
-if (localStorage.getItem("locked") === "true") {
+secretArea.addEventListener("mousedown", startHold);
+secretArea.addEventListener("mouseup", endHold);
+secretArea.addEventListener("touchstart", startHold);
+secretArea.addEventListener("touchend", endHold);
+secretArea.addEventListener("pointerdown", startHold);
+secretArea.addEventListener("pointerup", endHold);
+
+
+
+/* ============= Cek status kunci saat halaman dibuka ============= */
+if (localStorage.getItem(storageKey) === "true") {
     munculKunci();
 }
 
-// Deteksi keluar halaman (pindah tab / home / aplikasi lain)
+
+
+/* ============= Deteksi siswa keluar halaman ============= */
 document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-        localStorage.setItem("locked", "true");
+        localStorage.setItem(storageKey, "true");
         munculKunci();
     }
 });
 
-// Tampilkan layar terkunci
+
+
+/* ============= Tampilkan layar kunci ============= */
 function munculKunci() {
     document.getElementById("lockScreen").style.display = "block";
     document.body.style.overflow = "hidden";
 }
 
-// Buka halaman dengan password panitia
+
+
+/* ============= Buka kembali dengan kunci panitia ============= */
 function bukaUjian() {
     const input = document.getElementById("kunci").value;
 
     if (input === kunciPanitia) {
-        localStorage.removeItem("locked");
+        // Hapus kunci untuk mapel ini saja
+        localStorage.removeItem(storageKey);
+
         document.getElementById("lockScreen").style.display = "none";
         document.body.style.overflow = "auto";
 
-        // Sembunyikan lagi panel sandi setelah buka
         document.getElementById("kunci").style.display = "none";
         document.querySelector("#lockScreen button").style.display = "none";
     } else {
-        alert("Kunci salah! Hubungi panitia.");
+        alert("❌ Kunci salah! Hubungi panitia.");
     }
 }
 </script>
