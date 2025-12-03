@@ -58,21 +58,22 @@
             cursor: pointer;
         }
 
-        /* Area rahasia (tidak terlihat) */
+        /* Area rahasia di pojok kanan bawah */
         #secretArea {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 80px;
-            height: 80px;
+            bottom: 0;
+            right: 0;
+            width: 90px;
+            height: 90px;
             z-index: 10000;
-            opacity: 0;
+            opacity: 0; /* tidak terlihat */
         }
     </style>
 </head>
 <body>
 
 <div class="header">APLIKASI UJIAN</div>
+
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScb2XhoRWs0fF2rOvQkvgZTS0pfDv9Nm6QFZcDMejFCIU4HVg/viewform?usp=header"></iframe>
 
 <!-- Halaman terkunci -->
@@ -92,31 +93,34 @@
 const kunciPanitia = "SMK2024"; // GANTI PASSWORD PANITIA
 
 let holdTimer = null;
-
-// Tahan area rahasia selama 5 detik untuk membuka panel admin
 const secretArea = document.getElementById("secretArea");
 
-secretArea.addEventListener("mousedown", () => {
-    holdTimer = setTimeout(() => {
-        document.getElementById("kunci").style.display = "block";
-        document.querySelector("#lockScreen button").style.display = "inline-block";
-    }, 5000); // tahan 5 detik
-});
+// Fungsi untuk menampilkan input password admin
+function showAdminPanel() {
+    document.getElementById("kunci").style.display = "block";
+    document.querySelector("#lockScreen button").style.display = "inline-block";
+}
 
-secretArea.addEventListener("mouseup", () => {
+// Mulai hitung tahan 5 detik
+function startHold() {
+    holdTimer = setTimeout(showAdminPanel, 5000); // 5 detik
+}
+
+// Batal jika dilepas
+function endHold() {
     clearTimeout(holdTimer);
-});
+}
 
-secretArea.addEventListener("touchstart", () => {
-    holdTimer = setTimeout(() => {
-        document.getElementById("kunci").style.display = "block";
-        document.querySelector("#lockScreen button").style.display = "inline-block";
-    }, 5000);
-});
+// Event lengkap untuk semua perangkat
+secretArea.addEventListener("mousedown", startHold);
+secretArea.addEventListener("mouseup", endHold);
 
-secretArea.addEventListener("touchend", () => {
-    clearTimeout(holdTimer);
-});
+secretArea.addEventListener("touchstart", startHold);
+secretArea.addEventListener("touchend", endHold);
+
+// Pointer (paling aman, mencakup semuanya)
+secretArea.addEventListener("pointerdown", startHold);
+secretArea.addEventListener("pointerup", endHold);
 
 // Saat halaman dibuka ulang → cek apakah terkunci
 if (localStorage.getItem("locked") === "true") {
@@ -145,7 +149,7 @@ function bukaUjian() {
         document.getElementById("lockScreen").style.display = "none";
         document.body.style.overflow = "auto";
 
-        // Sembunyikan kembali input admin
+        // Sembunyikan panel sandi lagi
         document.getElementById("kunci").style.display = "none";
         document.querySelector("#lockScreen button").style.display = "none";
     } else {
@@ -153,7 +157,6 @@ function bukaUjian() {
     }
 }
 </script>
-
 
 </body>
 </html>
