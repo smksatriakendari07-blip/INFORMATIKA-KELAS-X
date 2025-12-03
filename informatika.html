@@ -146,27 +146,21 @@ let timer;
 
 const area = document.getElementById("secretArea");
 
-// Untuk HP
+// HP
 area.addEventListener("touchstart", () => {
     timer = setTimeout(() => {
         document.getElementById("unlockInput").style.display = "block";
     }, 5000);
 });
+area.addEventListener("touchend", () => clearTimeout(timer));
 
-area.addEventListener("touchend", () => {
-    clearTimeout(timer);
-});
-
-// Untuk laptop / mouse
+// Laptop
 area.addEventListener("mousedown", () => {
     timer = setTimeout(() => {
         document.getElementById("unlockInput").style.display = "block";
     }, 5000);
 });
-
-area.addEventListener("mouseup", () => {
-    clearTimeout(timer);
-});
+area.addEventListener("mouseup", () => clearTimeout(timer));
 
 // -----------------------------
 // 4. Fungsi buka kunci panitia
@@ -175,16 +169,39 @@ function bukaKunci() {
     let input = document.getElementById("adminPass").value;
 
     if (input === sandiPanitia) {
+
+        // 1. hapus kunci
         localStorage.removeItem(storageName);
-        location.reload();
+
+        // 2. sembunyikan layar terkunci
+        document.getElementById("lockScreen").style.display = "none";
+
+        // 3. aktifkan scroll lagi
+        document.body.style.overflow = "auto";
+
+        // 4. reload HALUS (tanpa memuat ulang seluruh domain)
+        setTimeout(() => {
+            window.location.href = window.location.pathname;
+        }, 300);
+
     } else {
         alert("Sandi salah!");
     }
 }
+
+// -----------------------------
+// 5. Tombol reset panitia (cadangan)
+// -----------------------------
+function resetStorage() {
+    localStorage.removeItem(storageName);
+    alert("Kunci sudah dihapus. Silakan muat ulang halaman.");
+}
 </script>
+
 
 </body>
 </html>
+
 
 
 
