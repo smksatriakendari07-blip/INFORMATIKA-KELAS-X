@@ -1,188 +1,159 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ujian Informatika</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APLIKASI UJIAN</title>
 
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #ffffff;
-        overflow: hidden;
-    }
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
 
-    .header {
-        width: 100%;
-        padding: 12px;
-        background: #510375;
-        color: white;
-        font-size: 20px;
-        text-align: center;
-        font-weight: bold;
-    }
+        .header {
+            background: #510375;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
 
-    iframe {
-        width: 100vw;
-        height: calc(100vh - 50px);
-        border: none;
-    }
+        iframe {
+            width: 100vw;
+            height: calc(100vh - 50px);
+            border: none;
+        }
 
-    #lockScreen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #8b0000;
-        color: white;
-        display: none;
-        text-align: center;
-        padding-top: 120px;
-        z-index: 9999;
-    }
+        /* Halaman terkunci */
+        #lockScreen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #b30000;
+            color: white;
+            text-align: center;
+            padding-top: 80px;
+            display: none;
+            z-index: 9999;
+        }
 
-    #lockScreen h1 {
-        font-size: 42px;
-        margin-bottom: 10px;
-    }
+        #lockScreen input, 
+        #lockScreen button {
+            display: none;
+            padding: 12px;
+            font-size: 18px;
+            width: 80%;
+            max-width: 300px;
+            border-radius: 6px;
+            border: none;
+            margin-top: 10px;
+        }
 
-    #lockScreen p {
-        font-size: 20px;
-        margin: 5px 20px;
-    }
+        #lockScreen button {
+            background: black;
+            color: white;
+            cursor: pointer;
+        }
 
-    #unlockInput {
-        display: none;
-        margin-top: 25px;
-    }
-
-    #unlockInput input {
-        padding: 10px;
-        font-size: 18px;
-        width: 220px;
-        border-radius: 5px;
-        border: none;
-    }
-
-    #unlockInput button {
-        padding: 10px 15px;
-        font-size: 18px;
-        border: none;
-        background: #00cc44;
-        color: white;
-        border-radius: 5px;
-        margin-left: 5px;
-    }
-
-    #secretArea {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 60px;
-        height: 60px;
-        z-index: 10000;
-        opacity: 0;
-    }
-</style>
+        /* Area rahasia (tidak terlihat) */
+        #secretArea {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
 
 <div class="header">APLIKASI UJIAN</div>
-
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScb2XhoRWs0fF2rOvQkvgZTS0pfDv9Nm6QFZcDMejFCIU4HVg/viewform?usp=header"></iframe>
 
-<div id="secretArea"></div>
-
+<!-- Halaman terkunci -->
 <div id="lockScreen">
     <h1>⚠️ HALAMAN UJIAN TERKUNCI</h1>
-    <p>Sistem mendeteksi bahwa Anda meninggalkan halaman ujian.</p>
-    <p>Jangan Meninggalkan Halaman Ketika Ujian Berlangsung .</p>
+    <p>Sistem mendeteksi Anda keluar dari halaman ujian.</p>
+    <p>Jangan Keluar Halaman Ketika Ujian Berlangsung.</p>
 
-    <div id="unlockInput">
-        <input type="password" id="adminPass" placeholder="Sandi Panitia">
-        <button onclick="bukaKunci()">Buka</button>
-    </div>
-
-    <!-- Tombol reset cadangan panitia -->
-    <button id="resetButton" onclick="resetStorage()" 
-        style="display:none; margin-top:20px; padding:10px 15px; font-size:18px;">
-        RESET KUNCI
-    </button>
+    <input type="password" id="kunci" placeholder="Masukkan kunci panitia">
+    <button onclick="bukaUjian()">Buka Ujian</button>
 </div>
 
-<script>
-const sandiPanitia = "PANITIA2024";
-const storageName = "ujianTerkunci_informatika";
+<!-- Area rahasia -->
+<div id="secretArea"></div>
 
-// 1. Kunci jika keluar halaman
-document.addEventListener("visibilitychange", () => {
+<script>
+const kunciPanitia = "SMK2024"; // GANTI PASSWORD PANITIA
+
+let holdTimer = null;
+
+// Tahan area rahasia selama 5 detik untuk membuka panel admin
+const secretArea = document.getElementById("secretArea");
+
+secretArea.addEventListener("mousedown", () => {
+    holdTimer = setTimeout(() => {
+        document.getElementById("kunci").style.display = "block";
+        document.querySelector("#lockScreen button").style.display = "inline-block";
+    }, 5000); // tahan 5 detik
+});
+
+secretArea.addEventListener("mouseup", () => {
+    clearTimeout(holdTimer);
+});
+
+secretArea.addEventListener("touchstart", () => {
+    holdTimer = setTimeout(() => {
+        document.getElementById("kunci").style.display = "block";
+        document.querySelector("#lockScreen button").style.display = "inline-block";
+    }, 5000);
+});
+
+secretArea.addEventListener("touchend", () => {
+    clearTimeout(holdTimer);
+});
+
+// Saat halaman dibuka ulang → cek apakah terkunci
+if (localStorage.getItem("locked") === "true") {
+    munculKunci();
+}
+
+// Deteksi keluar halaman
+document.addEventListener("visibilitychange", function () {
     if (document.hidden) {
-        localStorage.setItem(storageName, "yes");
-        tampilkanKunci();
+        localStorage.setItem("locked", "true");
+        munculKunci();
     }
 });
 
-// 2. Cek saat halaman dibuka
-if (localStorage.getItem(storageName) === "yes") {
-    tampilkanKunci();
-}
-
-function tampilkanKunci() {
+function munculKunci() {
     document.getElementById("lockScreen").style.display = "block";
     document.body.style.overflow = "hidden";
 }
 
-// 3. Area rahasia tekan 5 detik
-let timer;
-const area = document.getElementById("secretArea");
+// Buka halaman dengan password panitia
+function bukaUjian() {
+    const input = document.getElementById("kunci").value;
 
-// HP
-area.addEventListener("touchstart", () => {
-    timer = setTimeout(() => {
-        document.getElementById("unlockInput").style.display = "block";
-        document.getElementById("resetButton").style.display = "block";
-    }, 5000);
-});
-area.addEventListener("touchend", () => clearTimeout(timer));
-
-// Laptop
-area.addEventListener("mousedown", () => {
-    timer = setTimeout(() => {
-        document.getElementById("unlockInput").style.display = "block";
-        document.getElementById("resetButton").style.display = "block";
-    }, 5000);
-});
-area.addEventListener("mouseup", () => clearTimeout(timer));
-
-// 4. Buka kunci panitia
-function bukaKunci() {
-    let input = document.getElementById("adminPass").value;
-
-    if (input === sandiPanitia) {
-
-        localStorage.removeItem(storageName);
-
+    if (input === kunciPanitia) {
+        localStorage.removeItem("locked");
         document.getElementById("lockScreen").style.display = "none";
-
         document.body.style.overflow = "auto";
 
-        setTimeout(() => {
-            window.location.href = window.location.pathname;
-        }, 300);
-
+        // Sembunyikan kembali input admin
+        document.getElementById("kunci").style.display = "none";
+        document.querySelector("#lockScreen button").style.display = "none";
     } else {
-        alert("Sandi salah!");
+        alert("Kunci salah! Hubungi panitia.");
     }
 }
-
-// 5. Reset cadangan
-function resetStorage() {
-    localStorage.removeItem(storageName);
-    alert("Kunci sudah dihapus. Silakan muat ulang halaman.");
-}
 </script>
+
 
 </body>
 </html>
