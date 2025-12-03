@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aplikasi Ujian</title>
+<title>Ujian Informatika</title>
 
 <style>
     body {
@@ -36,7 +36,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: #8b0000; /* merah gelap */
+        background: #8b0000;
         color: white;
         display: none;
         text-align: center;
@@ -54,9 +54,10 @@
         margin: 5px 20px;
     }
 
+    /* Input sandi panitia */
     #unlockInput {
         display: none;
-        margin-top: 20px;
+        margin-top: 25px;
     }
 
     #unlockInput input {
@@ -77,7 +78,7 @@
         margin-left: 5px;
     }
 
-    /* AREA RAHASIA 5 DETIK */
+    /* Area rahasia pojok kanan atas */
     #secretArea {
         position: fixed;
         top: 0;
@@ -85,92 +86,97 @@
         width: 60px;
         height: 60px;
         z-index: 10000;
-        opacity: 0; /* Tidak terlihat */
+        opacity: 0; /* tidak terlihat */
     }
 </style>
 </head>
 <body>
 
-<div class="header">APLIKASI UJIAN</div>
+<div class="header">UJIAN INFORMATIKA</div>
+
+<!-- GANTI DENGAN GOOGLE FORM INFORMATIKA -->
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScb2XhoRWs0fF2rOvQkvgZTS0pfDv9Nm6QFZcDMejFCIU4HVg/viewform?usp=header"></iframe>
 
-<!-- AREA RAHASIA PANITIA -->
+<!-- Area rahasia -->
 <div id="secretArea"></div>
 
-<!-- LAYAR TERKUNCI -->
+<!-- Layar terkunci -->
 <div id="lockScreen">
     <h1>⚠️ HALAMAN UJIAN TERKUNCI</h1>
     <p>Sistem mendeteksi bahwa Anda meninggalkan halaman ujian.</p>
-    <p>Anda tidak dapat melanjutkan ujian.</p>
+    <p>Anda tidak dapat melanjutkan ujian ini.</p>
 
     <div id="unlockInput">
-        <input type="password" id="adminPass" placeholder="Masukkan Sandi Panitia">
+        <input type="password" id="adminPass" placeholder="Sandi Panitia">
         <button onclick="bukaKunci()">Buka</button>
     </div>
 </div>
 
 <script>
-const sandiPanitia = "PANITIA2024"; // GANTI DENGAN SANDI ANDA
+const sandiPanitia = "PANITIA2024";  // 👉 GANTI SANDI ANDA DI SINI
+const storageName = "ujianTerkunci_informatika"; // khusus mapel Informatika
 
-// ======================================================
-// 1. Jika keluar halaman → kunci permanen
-// ======================================================
-document.addEventListener("visibilitychange", function () {
+// -----------------------------
+// 1. Kunci otomatis jika keluar halaman
+// -----------------------------
+document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-        localStorage.setItem("ujianTerkunciInformatika", "yes");
+        localStorage.setItem(storageName, "yes");
         tampilkanKunci();
     }
 });
 
-// ======================================================
-// 2. Saat masuk halaman cek apakah sudah terkunci
-// ======================================================
-if (localStorage.getItem("ujianTerkunci") === "yes") {
+// -----------------------------
+// 2. Cek saat halaman dibuka
+// -----------------------------
+if (localStorage.getItem(storageName) === "yes") {
     tampilkanKunci();
 }
 
-// ======================================================
-// 3. Fungsi menampilkan layar terkunci
-// ======================================================
+// -----------------------------
 function tampilkanKunci() {
     document.getElementById("lockScreen").style.display = "block";
     document.body.style.overflow = "hidden";
 }
 
-// ======================================================
-// 4. Area Rahasia: Tekan & Tahan 5 Detik untuk memunculkan sandi panitia
-// ======================================================
-let tekanTimer;
+// -----------------------------
+// 3. Area rahasia tekan 5 detik
+// -----------------------------
+let timer;
 
-document.getElementById("secretArea").addEventListener("touchstart", () => {
-    tekanTimer = setTimeout(() => {
-        document.getElementById("unlockInput").style.display = "block";
-    }, 5000); // 5 detik
-});
+const area = document.getElementById("secretArea");
 
-document.getElementById("secretArea").addEventListener("touchend", () => {
-    clearTimeout(tekanTimer);
-});
-
-// Untuk laptop (mouse)
-document.getElementById("secretArea").addEventListener("mousedown", () => {
-    tekanTimer = setTimeout(() => {
+// Untuk HP
+area.addEventListener("touchstart", () => {
+    timer = setTimeout(() => {
         document.getElementById("unlockInput").style.display = "block";
     }, 5000);
 });
-document.getElementById("secretArea").addEventListener("mouseup", () => {
-    clearTimeout(tekanTimer);
+
+area.addEventListener("touchend", () => {
+    clearTimeout(timer);
 });
 
-// ======================================================
-// 5. Fungsi membuka kunci ujian setelah masukkan sandi panitia
-// ======================================================
+// Untuk laptop / mouse
+area.addEventListener("mousedown", () => {
+    timer = setTimeout(() => {
+        document.getElementById("unlockInput").style.display = "block";
+    }, 5000);
+});
+
+area.addEventListener("mouseup", () => {
+    clearTimeout(timer);
+});
+
+// -----------------------------
+// 4. Fungsi buka kunci panitia
+// -----------------------------
 function bukaKunci() {
     let input = document.getElementById("adminPass").value;
 
     if (input === sandiPanitia) {
-        localStorage.removeItem("ujianTerkunci");
-        location.reload(); // reload agar kembali ke halaman ujian
+        localStorage.removeItem(storageName);
+        location.reload();
     } else {
         alert("Sandi salah!");
     }
@@ -179,4 +185,3 @@ function bukaKunci() {
 
 </body>
 </html>
-
