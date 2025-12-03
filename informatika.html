@@ -29,7 +29,6 @@
         border: none;
     }
 
-    /* --- Layar Terkunci --- */
     #lockScreen {
         position: fixed;
         top: 0;
@@ -54,7 +53,6 @@
         margin: 5px 20px;
     }
 
-    /* Input sandi panitia */
     #unlockInput {
         display: none;
         margin-top: 25px;
@@ -78,7 +76,6 @@
         margin-left: 5px;
     }
 
-    /* Area rahasia pojok kanan atas */
     #secretArea {
         position: fixed;
         top: 0;
@@ -86,7 +83,7 @@
         width: 60px;
         height: 60px;
         z-index: 10000;
-        opacity: 0; /* tidak terlihat */
+        opacity: 0;
     }
 </style>
 </head>
@@ -94,31 +91,32 @@
 
 <div class="header">APLIKASI UJIAN</div>
 
-<!-- GANTI DENGAN GOOGLE FORM INFORMATIKA -->
 <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScb2XhoRWs0fF2rOvQkvgZTS0pfDv9Nm6QFZcDMejFCIU4HVg/viewform?usp=header"></iframe>
 
-<!-- Area rahasia -->
 <div id="secretArea"></div>
 
-<!-- Layar terkunci -->
 <div id="lockScreen">
     <h1>⚠️ HALAMAN UJIAN TERKUNCI</h1>
     <p>Sistem mendeteksi bahwa Anda meninggalkan halaman ujian.</p>
-    <p>Anda tidak dapat melanjutkan ujian ini.</p>
+    <p>Jangan Meninggalkan Halaman Ketika Ujian Berlangsung .</p>
 
     <div id="unlockInput">
         <input type="password" id="adminPass" placeholder="Sandi Panitia">
         <button onclick="bukaKunci()">Buka</button>
     </div>
+
+    <!-- Tombol reset cadangan panitia -->
+    <button id="resetButton" onclick="resetStorage()" 
+        style="display:none; margin-top:20px; padding:10px 15px; font-size:18px;">
+        RESET KUNCI
+    </button>
 </div>
 
 <script>
-const sandiPanitia = "PANITIA2024";  // 👉 GANTI SANDI ANDA DI SINI
-const storageName = "ujianTerkunci_informatika"; // khusus mapel Informatika
+const sandiPanitia = "PANITIA2024";
+const storageName = "ujianTerkunci_informatika";
 
-// -----------------------------
-// 1. Kunci otomatis jika keluar halaman
-// -----------------------------
+// 1. Kunci jika keluar halaman
 document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
         localStorage.setItem(storageName, "yes");
@@ -126,30 +124,25 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-// -----------------------------
 // 2. Cek saat halaman dibuka
-// -----------------------------
 if (localStorage.getItem(storageName) === "yes") {
     tampilkanKunci();
 }
 
-// -----------------------------
 function tampilkanKunci() {
     document.getElementById("lockScreen").style.display = "block";
     document.body.style.overflow = "hidden";
 }
 
-// -----------------------------
 // 3. Area rahasia tekan 5 detik
-// -----------------------------
 let timer;
-
 const area = document.getElementById("secretArea");
 
 // HP
 area.addEventListener("touchstart", () => {
     timer = setTimeout(() => {
         document.getElementById("unlockInput").style.display = "block";
+        document.getElementById("resetButton").style.display = "block";
     }, 5000);
 });
 area.addEventListener("touchend", () => clearTimeout(timer));
@@ -158,28 +151,23 @@ area.addEventListener("touchend", () => clearTimeout(timer));
 area.addEventListener("mousedown", () => {
     timer = setTimeout(() => {
         document.getElementById("unlockInput").style.display = "block";
+        document.getElementById("resetButton").style.display = "block";
     }, 5000);
 });
 area.addEventListener("mouseup", () => clearTimeout(timer));
 
-// -----------------------------
-// 4. Fungsi buka kunci panitia
-// -----------------------------
+// 4. Buka kunci panitia
 function bukaKunci() {
     let input = document.getElementById("adminPass").value;
 
     if (input === sandiPanitia) {
 
-        // 1. hapus kunci
         localStorage.removeItem(storageName);
 
-        // 2. sembunyikan layar terkunci
         document.getElementById("lockScreen").style.display = "none";
 
-        // 3. aktifkan scroll lagi
         document.body.style.overflow = "auto";
 
-        // 4. reload HALUS (tanpa memuat ulang seluruh domain)
         setTimeout(() => {
             window.location.href = window.location.pathname;
         }, 300);
@@ -189,20 +177,12 @@ function bukaKunci() {
     }
 }
 
-// -----------------------------
-// 5. Tombol reset panitia (cadangan)
-// -----------------------------
+// 5. Reset cadangan
 function resetStorage() {
     localStorage.removeItem(storageName);
     alert("Kunci sudah dihapus. Silakan muat ulang halaman.");
 }
 </script>
 
-
 </body>
 </html>
-
-
-
-
-
